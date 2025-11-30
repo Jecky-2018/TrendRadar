@@ -57,6 +57,22 @@ jobs:
       - name: Run crawler
         env:
           FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+           GITHUB_ACTIONS: true
+  run: |
+    # 设置详细日志
+    export PYTHONUNBUFFERED=1
+    python main.py 2>&1 | tee crawl.log
+    
+    # 检查日志中的关键信息
+    echo "=== 检查飞书相关日志 ==="
+    grep -i "feishu\|飞书\|webhook" crawl.log || echo "未找到飞书相关日志"
+    
+    echo "=== 检查错误信息 ==="
+    grep -i "error\|failed\|exception" crawl.log || echo "未找到错误信息"
+    
+    # 保存日志文件
+    echo "=== 完整日志 ==="
+    cat crawl.log
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DINGTALK_WEBHOOK_URL: ${{ secrets.DINGTALK_WEBHOOK_URL }}
